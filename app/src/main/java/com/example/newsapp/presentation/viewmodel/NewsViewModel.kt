@@ -7,69 +7,62 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.example.newsapp.data.model.APIResponse
 import com.example.newsapp.domain.usecase.GetNewsHeadlinesUseCase
-import com.example.newsfeed.data.util.Resource
+import com.example.newsapp.presentation.pagingSource.NewsPagingSource
+import com.example.newsapp.data.util.Resource
+import com.example.newsapp.domain.usecase.GetSearchedNewsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
-class NewsViewModel(
-    private val app:Application,
-    private val getNewsHeadlinesUseCase: GetNewsHeadlinesUseCase
+class NewsViewModel (
+    private val app: Application,
+    private val getNewsHeadLineUseCase: GetNewsHeadlinesUseCase,
+    private val getSearchedNewsUseCase: GetSearchedNewsUseCase
 ) : AndroidViewModel(app) {
-    val newsHeadLines: MutableLiveData<Resource<APIResponse>> = MutableLiveData()
 
-    fun getNewsHeadLines(country: String, page: Int) = viewModelScope.launch(Dispatchers.IO) {
-        newsHeadLines.postValue(Resource.Loading())
+    val flow = Pager(PagingConfig(pageSize = 20)) {
+        NewsPagingSource(getNewsHeadLineUseCase , "us")
+    }.flow.cachedIn(viewModelScope)
+
+    val newsHeadLines: MutableLiveData<Resource<APIResponse>> = MutableLiveData();
+
+    fun getNewsHeadLines(country: String  , page: Int) = viewModelScope.launch(Dispatchers.IO) {
         try{
-            if(isNetworkAvailable(app)) {
-
-                val apiResult = getNewsHeadlinesUseCase.execute(country, page)
-                newsHeadLines.postValue(apiResult)
+            newsHeadLines.postValue(Resource.Loading());
+            if(isNetworkAvailable(app)){
+                val result = getNewsHeadLineUseCase.execute(country, page)
+                newsHeadLines.postValue(result);
             }else{
-                newsHeadLines.postValue(Resource.Error("Internet is not available"))
+                newsHeadLines.postValue(Resource.Error("Internet is not connected"));
             }
-
-        }catch (e:Exception){
-            newsHeadLines.postValue(Resource.Error(e.message.toString()))
+        }catch (e: Exception){
+            newsHeadLines.postValue(Resource.Error(e.message.toString()));
+            e.printStackTrace()
         }
-
     }
-    /*
-    Must prepare for all situations, so this function will serve the purpose of
-    checking the internet availability.
 
-    Pretty generic android code. Can reuse method for other projects also.
-     */
-    private fun isNetworkAvailable(context: Context?): Boolean {
-        if(context == null) return false
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val capabilities = connectivityManager
-                .getNetworkCapabilities(connectivityManager.activeNetwork)
-            if (capabilities != null) {
-                when {
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
-                        return true
-                    }
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
-                        return true
-                    }
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> {
-                        return true
-                    }
-                }
+    private fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val nw      = connectivityManager.activeNetwork ?: return false
+            val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
+            return when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                //for other device how are able to connect with Ethernet
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                //for check internet over Bluetooth
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+                else -> false
             }
         } else {
-            val activeNetworkInfo = connectivityManager.activeNetworkInfo
-            if (activeNetworkInfo != null && activeNetworkInfo.isConnected) {
-                return true
-            }
+            val nwInfo = connectivityManager.activeNetworkInfo ?: return false
+            return nwInfo.isConnected
         }
-        return false
     }
 }
