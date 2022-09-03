@@ -6,7 +6,7 @@ import com.example.newsapp.domain.repository.NewsRepository
 class DeleteSavedNewsUseCase(
     private val newsRepository: NewsRepository
 ) {
-        suspend fun deleteNews(article: Article){
+        suspend fun execute(article: Article){
             return newsRepository.deleteNews(article)
         }
 }

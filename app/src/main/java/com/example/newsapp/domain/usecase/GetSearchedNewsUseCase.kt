@@ -7,7 +7,7 @@ import com.example.newsfeed.data.util.Resource
 class GetSearchedNewsUseCase(
     private val newsRepository: NewsRepository
 ) {
-        suspend fun getSearchedNews(searchQuery: String): Resource<APIResponse>{
-            return newsRepository.getSearchedNews(searchQuery)
+        suspend fun execute(country:String,searchQuery: String,page:Int): Resource<APIResponse>{
+            return newsRepository.getSearchedNews(country,searchQuery,page)
         }
 }

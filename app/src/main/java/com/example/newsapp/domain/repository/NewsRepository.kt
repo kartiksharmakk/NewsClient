@@ -36,7 +36,7 @@ interface NewsRepository {
     /*
     Get Search method for search use case.
      */
-    suspend fun getSearchedNews(searchQuery: String): Resource<APIResponse>
+    suspend fun getSearchedNews(country: String,searchQuery: String,page: Int): Resource<APIResponse>
 
     /*
     Save method for save news case.

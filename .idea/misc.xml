@@ -3,10 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/androidapps/NewsApp/app/src/main/res/drawable/ic_baseline_save_24.xml" value="0.1925" />
         <entry key="..\:/androidapps/NewsApp/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/androidapps/NewsApp/app/src/main/res/layout/fragment_info.xml" value="0.27239583333333334" />
         <entry key="..\:/androidapps/NewsApp/app/src/main/res/layout/fragment_news.xml" value="0.22" />
-        <entry key="..\:/androidapps/NewsApp/app/src/main/res/layout/fragment_saved.xml" value="0.13094641962944417" />
+        <entry key="..\:/androidapps/NewsApp/app/src/main/res/layout/fragment_saved.xml" value="0.2" />
         <entry key="..\:/androidapps/NewsApp/app/src/main/res/layout/news_list_item.xml" value="0.33" />
         <entry key="..\:/androidapps/NewsApp/app/src/main/res/menu/bottom_menu.xml" value="0.27239583333333334" />
       </map>
