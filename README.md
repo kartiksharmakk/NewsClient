@@ -16,7 +16,7 @@ This app is based on Model–view–viewmodel (MVVM) Architecture
 <br />
 
 # App Structure
-![AppStructure](AppStructure.png "App Structure")
+![AppStructure](AppStructure.PNG "App Structure")
 
 <br />
 
